@@ -39,4 +39,16 @@ public interface BossPerformanceConfig extends Config
 	{
 		return 20;
 	}
+
+	@ConfigItem(
+		keyName = "showOverlay",
+		name = "Show Live Overlay",
+		description = "Display a live screen overlay of combat metrics during active boss fights.",
+		position = 4
+	)
+	default boolean showOverlay()
+	{
+		return true;
+	}
 }
+

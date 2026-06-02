@@ -72,6 +72,12 @@ public class CombatSession
 		return endTick > startTick ? (endTick - startTick) : 0;
 	}
 
+	public int getDurationTicksActive(int currentTick)
+	{
+		int end = endTick > startTick ? endTick : currentTick;
+		return Math.max(0, end - startTick);
+	}
+
 	public double getUptimePercent()
 	{
 		int duration = getDurationTicks();
@@ -80,11 +86,41 @@ public class CombatSession
 			return 100.0;
 		}
 		
-		// Uptime calculation based on lost ticks:
-		// Active ticks = duration - lost ticks.
-		// % Uptime = (Active Ticks / Total Ticks) * 100
 		double activeTicks = Math.max(0, duration - totalLostTicks);
 		return (activeTicks / duration) * 100.0;
+	}
+
+	public double getUptimePercentActive(int currentTick)
+	{
+		int duration = getDurationTicksActive(currentTick);
+		if (duration <= 0)
+		{
+			return 100.0;
+		}
+		double activeTicks = Math.max(0, duration - totalLostTicks);
+		return (activeTicks / duration) * 100.0;
+	}
+
+	public double getPrayerAccuracy()
+	{
+		int totalAttacks = 0;
+		int correct = 0;
+		for (CombatEvent event : events)
+		{
+			if (event instanceof CombatEvent.BossAttack)
+			{
+				CombatEvent.BossAttack ba = (CombatEvent.BossAttack) event;
+				if (ba.getAttackStyle() != CombatEvent.BossAttack.AttackStyle.TYPELESS)
+				{
+					totalAttacks++;
+					if (ba.isCorrectPrayer())
+					{
+						correct++;
+					}
+				}
+			}
+		}
+		return totalAttacks > 0 ? ((double) correct / totalAttacks) * 100.0 : 100.0;
 	}
 
 	public String getFormattedDuration()
@@ -94,4 +130,13 @@ public class CombatSession
 		int secs = seconds % 60;
 		return String.format("%d:%02d", mins, secs);
 	}
+
+	public String getFormattedDurationActive(int currentTick)
+	{
+		int seconds = (int) (getDurationTicksActive(currentTick) * 0.6);
+		int mins = seconds / 60;
+		int secs = seconds % 60;
+		return String.format("%d:%02d", mins, secs);
+	}
 }
+

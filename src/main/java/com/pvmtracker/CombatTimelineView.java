@@ -109,9 +109,13 @@ public class CombatTimelineView extends JPanel
 					// Actual Attack launched
 					g2.setColor(new Color(0, 188, 212)); // Cyan
 					g2.fillRect(x + 1, playerY + 1, TICK_WIDTH - 2, ROW_HEIGHT - 2);
+					
+					// Draw beautiful vector sword pointing upwards
 					g2.setColor(Color.WHITE);
-					g2.setFont(boldFont);
-					g2.drawString("A", x + 7, playerY + 18);
+					g2.fillRect(x + 10, playerY + 5, 2, 11); // Blade
+					g2.fillRect(x + 7, playerY + 13, 8, 2);  // Crossguard
+					g2.setColor(new Color(139, 69, 19));     // Brown hilt
+					g2.fillRect(x + 10, playerY + 15, 2, 4); // Pommel/hilt
 				}
 			}
 			else
@@ -162,21 +166,52 @@ public class CombatTimelineView extends JPanel
 				g2.setColor(styleColor);
 				g2.fillRect(x + 1, bossY + 1, TICK_WIDTH - 2, ROW_HEIGHT - 2);
 
-				// Draw damage text in center
+				// Draw Attack Icon based on style (Upper half of the box)
+				int iconY = bossY + 3;
+				switch (ba.getAttackStyle())
+				{
+					case MAGIC:
+						// Draw magic blue sparkle circle
+						g2.setColor(new Color(135, 206, 250)); // Light Blue Sparkle
+						g2.fillOval(x + 6, iconY + 2, 10, 10);
+						g2.setColor(Color.WHITE);
+						g2.drawOval(x + 6, iconY + 2, 10, 10);
+						break;
+					case RANGE:
+						// Draw green arrow pointing down
+						g2.setColor(new Color(144, 238, 144)); // Light Green Arrow
+						g2.fillRect(x + 10, iconY + 1, 2, 6); // shaft
+						int[] ax = { x + 6, x + 11, x + 16 };
+						int[] ay = { iconY + 6, iconY + 12, iconY + 6 };
+						g2.fillPolygon(ax, ay, 3); // tip
+						break;
+					case MELEE:
+						// Draw red crossed swords
+						g2.setColor(new Color(255, 128, 128)); // Light Red Swords
+						g2.drawLine(x + 5, iconY + 2, x + 16, iconY + 11);
+						g2.drawLine(x + 16, iconY + 2, x + 5, iconY + 11);
+						break;
+					default:
+						// Typeless: small white dot
+						g2.setColor(Color.WHITE);
+						g2.fillOval(x + 9, iconY + 4, 4, 4);
+						break;
+				}
+
+				// Draw damage text at the bottom half of the box
 				if (ba.getDamage() > 0)
 				{
 					g2.setColor(Color.WHITE);
 					g2.setFont(boldFont);
 					String dmgStr = String.valueOf(ba.getDamage());
 					int offset = dmgStr.length() > 1 ? 4 : 7;
-					g2.drawString(dmgStr, x + offset, bossY + 18);
+					g2.drawString(dmgStr, x + offset, bossY + 25);
 				}
 
-				// If prayer was missed, highlight with thick red borders or an 'X'
+				// If prayer was missed, highlight with thick red borders
 				if (!ba.isCorrectPrayer())
 				{
 					g2.setColor(Color.RED);
-					// Draw a thick border
 					g2.drawRect(x + 1, bossY + 1, TICK_WIDTH - 2, ROW_HEIGHT - 2);
 					g2.drawRect(x + 2, bossY + 2, TICK_WIDTH - 4, ROW_HEIGHT - 4);
 					

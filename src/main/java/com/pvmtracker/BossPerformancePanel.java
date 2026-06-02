@@ -101,11 +101,11 @@ public class BossPerformancePanel extends PluginPanel
 		backButton.addActionListener(e -> cardLayout.show(container, LIST_CARD));
 		
 		// Detail Stats
-		JPanel statsPanel = new JPanel(new GridLayout(6, 2, 5, 8));
+		JPanel statsPanel = new JPanel(new GridLayout(5, 2, 5, 4));
 		statsPanel.setBackground(ColorScheme.DARKER_GRAY_COLOR);
 		statsPanel.setBorder(BorderFactory.createCompoundBorder(
 			BorderFactory.createLineBorder(ColorScheme.DARKER_GRAY_COLOR.brighter()),
-			BorderFactory.createEmptyBorder(10, 10, 10, 10)
+			BorderFactory.createEmptyBorder(6, 8, 6, 8)
 		));
 
 		detailTitle.setFont(new Font("SansSerif", Font.BOLD, 14));
@@ -126,11 +126,11 @@ public class BossPerformancePanel extends PluginPanel
 		timelineScrollPane.setPreferredSize(new Dimension(210, 115));
 
 		detailPanel.add(backButton);
-		detailPanel.add(Box.createRigidArea(new Dimension(0, 12)));
+		detailPanel.add(Box.createRigidArea(new Dimension(0, 6)));
 		detailPanel.add(detailTitle);
-		detailPanel.add(Box.createRigidArea(new Dimension(0, 8)));
+		detailPanel.add(Box.createRigidArea(new Dimension(0, 4)));
 		detailPanel.add(statsPanel);
-		detailPanel.add(Box.createRigidArea(new Dimension(0, 15)));
+		detailPanel.add(Box.createRigidArea(new Dimension(0, 8)));
 		
 		JLabel timelineLabel = new JLabel("Combat Timeline (Tick-by-Tick)");
 		timelineLabel.setFont(new Font("SansSerif", Font.BOLD, 12));

@@ -33,6 +33,7 @@ import net.runelite.api.events.ProjectileMoved;
 import net.runelite.client.callback.ClientThread;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
+import net.runelite.client.ui.overlay.OverlayManager;
 import net.runelite.client.game.ItemManager;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
@@ -71,6 +72,12 @@ public class BossPerformancePlugin extends Plugin
 
 	@Inject
 	private ItemManager itemManager;
+
+	@Inject
+	private OverlayManager overlayManager;
+
+	@Inject
+	private BossPerformanceOverlay overlay;
 
 	private BossPerformancePanel panel;
 	private NavigationButton navButton;
@@ -116,6 +123,7 @@ public class BossPerformancePlugin extends Plugin
 			.build();
 
 		clientToolbar.addNavigation(navButton);
+		overlayManager.add(overlay);
 		log.debug("PvM Tracker started!");
 	}
 
@@ -123,6 +131,7 @@ public class BossPerformancePlugin extends Plugin
 	protected void shutDown() throws Exception
 	{
 		clientToolbar.removeNavigation(navButton);
+		overlayManager.remove(overlay);
 		activeBossNpcs.clear();
 		processedProjectiles.clear();
 		pendingBossAttacks.clear();
@@ -748,6 +757,11 @@ public class BossPerformancePlugin extends Plugin
 			default:
 				return false;
 		}
+	}
+
+	public CombatSession getCurrentSession()
+	{
+		return currentSession;
 	}
 
 	@Provides
