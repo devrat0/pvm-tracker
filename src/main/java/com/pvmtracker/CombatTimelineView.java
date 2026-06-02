@@ -13,11 +13,16 @@ import net.runelite.client.ui.ColorScheme;
 
 public class CombatTimelineView extends JPanel
 {
-	private static final int TICK_WIDTH = 22;
-	private static final int ROW_HEIGHT = 28;
-	private static final int LABEL_ROW_HEIGHT = 18;
+	private static final int TICK_X = 10;
+	private static final int PLAYER_X = 55;
+	private static final int BOSS_X = 100;
+	
+	private static final int PLAYER_WIDTH = 26;
+	private static final int BOSS_WIDTH = 46;
+	
+	private static final int TICK_HEIGHT = 20;
+	private static final int HEADER_HEIGHT = 22;
 	private static final int LEFT_PADDING = 10;
-	private static final int PANEL_HEIGHT = ROW_HEIGHT * 2 + LABEL_ROW_HEIGHT + 15;
 
 	private CombatSession session;
 	private CombatEvent.PlayerAttack[] playerEvents;
@@ -38,7 +43,7 @@ public class CombatTimelineView extends JPanel
 		{
 			playerEvents = null;
 			bossEvents = null;
-			setPreferredSize(new Dimension(0, PANEL_HEIGHT));
+			setPreferredSize(new Dimension(0, 0));
 			revalidate();
 			repaint();
 			return;
@@ -64,8 +69,9 @@ public class CombatTimelineView extends JPanel
 			}
 		}
 
-		int width = duration * TICK_WIDTH + LEFT_PADDING * 2;
-		setPreferredSize(new Dimension(width, PANEL_HEIGHT));
+		int height = HEADER_HEIGHT + duration * TICK_HEIGHT + 10;
+		// Width of 165 is perfect to fit in a narrow sidebar without horizontal scrollbars
+		setPreferredSize(new Dimension(165, height));
 		revalidate();
 		repaint();
 	}
@@ -86,13 +92,26 @@ public class CombatTimelineView extends JPanel
 		Font labelFont = new Font("SansSerif", Font.PLAIN, 10);
 		Font boldFont = new Font("SansSerif", Font.BOLD, 10);
 
-		// Grid & Tracks
+		// Draw headers
+		g2.setFont(boldFont);
+		g2.setColor(ColorScheme.LIGHT_GRAY_COLOR);
+		g2.drawString("Tick", TICK_X, 15);
+		g2.drawString("Player", PLAYER_X, 15);
+		g2.drawString("Boss", BOSS_X, 15);
+		
+		g2.setColor(ColorScheme.DARK_GRAY_COLOR);
+		g2.drawLine(LEFT_PADDING, HEADER_HEIGHT - 2, getWidth() - LEFT_PADDING, HEADER_HEIGHT - 2);
+
 		for (int tick = 0; tick < duration; tick++)
 		{
-			int x = LEFT_PADDING + tick * TICK_WIDTH;
-			
-			// 1. Draw Player Track (Top row)
-			int playerY = 5;
+			int y = HEADER_HEIGHT + tick * TICK_HEIGHT;
+
+			// 1. Draw Tick Label
+			g2.setFont(labelFont);
+			g2.setColor(ColorScheme.LIGHT_GRAY_COLOR);
+			g2.drawString(String.valueOf(tick), TICK_X, y + 13);
+
+			// 2. Draw Player Block
 			CombatEvent.PlayerAttack pa = playerEvents[tick];
 			if (pa != null)
 			{
@@ -100,49 +119,41 @@ public class CombatTimelineView extends JPanel
 				{
 					// Lost Tick (Uptime gap)
 					g2.setColor(new Color(183, 28, 28, 120)); // Red tint
-					g2.fillRect(x + 1, playerY + 1, TICK_WIDTH - 2, ROW_HEIGHT - 2);
+					g2.fillRect(PLAYER_X, y + 1, PLAYER_WIDTH, TICK_HEIGHT - 2);
 					g2.setColor(new Color(183, 28, 28));
-					g2.drawRect(x + 1, playerY + 1, TICK_WIDTH - 2, ROW_HEIGHT - 2);
+					g2.drawRect(PLAYER_X, y + 1, PLAYER_WIDTH, TICK_HEIGHT - 2);
 				}
 				else
 				{
 					// Actual Attack launched
 					g2.setColor(new Color(0, 188, 212)); // Cyan
-					g2.fillRect(x + 1, playerY + 1, TICK_WIDTH - 2, ROW_HEIGHT - 2);
+					g2.fillRect(PLAYER_X, y + 1, PLAYER_WIDTH, TICK_HEIGHT - 2);
 					
-					// Draw beautiful vector sword pointing upwards
+					// Draw small vector sword
+					int swordOffsetX = pa.getDamage() != -1 ? 1 : 9;
 					g2.setColor(Color.WHITE);
-					g2.fillRect(x + 10, playerY + 5, 2, 11); // Blade
-					g2.fillRect(x + 7, playerY + 13, 8, 2);  // Crossguard
-					g2.setColor(new Color(139, 69, 19));     // Brown hilt
-					g2.fillRect(x + 10, playerY + 15, 2, 4); // Pommel/hilt
+					g2.fillRect(PLAYER_X + swordOffsetX + 3, y + 4, 1, 8); // Blade
+					g2.fillRect(PLAYER_X + swordOffsetX + 1, y + 10, 5, 1); // Guard
+					g2.setColor(new Color(139, 69, 19));
+					g2.fillRect(PLAYER_X + swordOffsetX + 3, y + 11, 1, 2); // Hilt
+
+					// Draw damage text on right side
+					if (pa.getDamage() != -1)
+					{
+						g2.setColor(Color.WHITE);
+						g2.setFont(boldFont);
+						g2.drawString(String.valueOf(pa.getDamage()), PLAYER_X + 10, y + 13);
+					}
 				}
 			}
 			else
 			{
 				// Inactive cooldown
 				g2.setColor(ColorScheme.DARK_GRAY_COLOR);
-				g2.fillRect(x + 1, playerY + 1, TICK_WIDTH - 2, ROW_HEIGHT - 2);
+				g2.fillRect(PLAYER_X, y + 1, PLAYER_WIDTH, TICK_HEIGHT - 2);
 			}
 
-			// 2. Draw Tick Label Track (Middle row)
-			int labelY = playerY + ROW_HEIGHT;
-			g2.setColor(ColorScheme.LIGHT_GRAY_COLOR);
-			g2.setFont(labelFont);
-			if (tick % 5 == 0)
-			{
-				g2.drawString(String.valueOf(tick), x + 3, labelY + 12);
-				g2.setColor(ColorScheme.DARK_GRAY_COLOR);
-				g2.drawLine(x + TICK_WIDTH / 2, labelY, x + TICK_WIDTH / 2, labelY + 5);
-			}
-			else
-			{
-				g2.setColor(ColorScheme.DARK_GRAY_COLOR);
-				g2.drawLine(x + TICK_WIDTH / 2, labelY + 6, x + TICK_WIDTH / 2, labelY + 10);
-			}
-
-			// 3. Draw Boss Track (Bottom row)
-			int bossY = labelY + LABEL_ROW_HEIGHT;
+			// 3. Draw Boss Block
 			CombatEvent.BossAttack ba = bossEvents[tick];
 			if (ba != null)
 			{
@@ -164,66 +175,81 @@ public class CombatTimelineView extends JPanel
 				}
 
 				g2.setColor(styleColor);
-				g2.fillRect(x + 1, bossY + 1, TICK_WIDTH - 2, ROW_HEIGHT - 2);
+				g2.fillRect(BOSS_X, y + 1, BOSS_WIDTH, TICK_HEIGHT - 2);
 
-				// Draw Attack Icon based on style (Upper half of the box)
-				int iconY = bossY + 3;
+				// Draw Protect Prayer Icon based on style (Left side of the box)
+				int iconX = BOSS_X + 4;
+				int iconY = y + 2;
 				switch (ba.getAttackStyle())
 				{
 					case MAGIC:
-						// Draw magic blue sparkle circle
-						g2.setColor(new Color(135, 206, 250)); // Light Blue Sparkle
-						g2.fillOval(x + 6, iconY + 2, 10, 10);
-						g2.setColor(Color.WHITE);
-						g2.drawOval(x + 6, iconY + 2, 10, 10);
+						// Magic Overhead: blue circle background, yellow wizard hat
+						g2.setColor(new Color(25, 118, 210)); // Blue background
+						g2.fillOval(iconX, iconY + 2, 10, 10);
+						
+						g2.setColor(new Color(255, 215, 0)); // Gold hat
+						int[] hatX = { iconX + 2, iconX + 5, iconX + 8 };
+						int[] hatY = { iconY + 9, iconY + 4, iconY + 9 };
+						g2.fillPolygon(hatX, hatY, 3);
+						g2.fillRect(iconX + 1, iconY + 9, 9, 1); // hat brim
 						break;
+						
 					case RANGE:
-						// Draw green arrow pointing down
-						g2.setColor(new Color(144, 238, 144)); // Light Green Arrow
-						g2.fillRect(x + 10, iconY + 1, 2, 6); // shaft
-						int[] ax = { x + 6, x + 11, x + 16 };
-						int[] ay = { iconY + 6, iconY + 12, iconY + 6 };
-						g2.fillPolygon(ax, ay, 3); // tip
+						// Range Overhead: green circle background, arrow pointing down
+						g2.setColor(new Color(56, 142, 60)); // Green background
+						g2.fillOval(iconX, iconY + 2, 10, 10);
+						
+						g2.setColor(new Color(0, 230, 118)); // Bright Green arrow
+						g2.fillRect(iconX + 4, iconY + 4, 2, 4); // shaft
+						int[] arrX = { iconX + 2, iconX + 5, iconX + 8 };
+						int[] arrY = { iconY + 7, iconY + 10, iconY + 7 };
+						g2.fillPolygon(arrX, arrY, 3); // arrow head
 						break;
+						
 					case MELEE:
-						// Draw red crossed swords
-						g2.setColor(new Color(255, 128, 128)); // Light Red Swords
-						g2.drawLine(x + 5, iconY + 2, x + 16, iconY + 11);
-						g2.drawLine(x + 16, iconY + 2, x + 5, iconY + 11);
+						// Melee Overhead: red/orange circle background, sword pointing down
+						g2.setColor(new Color(216, 67, 21)); // Red/Orange background
+						g2.fillOval(iconX, iconY + 2, 10, 10);
+						
+						g2.setColor(new Color(255, 82, 82)); // Bright Red sword
+						g2.fillRect(iconX + 4, iconY + 3, 2, 6); // blade
+						g2.fillRect(iconX + 2, iconY + 8, 6, 1); // guard
+						g2.setColor(Color.WHITE);
+						g2.fillRect(iconX + 4, iconY + 9, 2, 1); // hilt
 						break;
+						
 					default:
 						// Typeless: small white dot
 						g2.setColor(Color.WHITE);
-						g2.fillOval(x + 9, iconY + 4, 4, 4);
+						g2.fillOval(iconX + 3, iconY + 4, 3, 3);
 						break;
 				}
 
-				// Draw damage text at the bottom half of the box
+				// Draw damage text (Right side of the box)
 				if (ba.getDamage() > 0)
 				{
 					g2.setColor(Color.WHITE);
 					g2.setFont(boldFont);
 					String dmgStr = String.valueOf(ba.getDamage());
-					int offset = dmgStr.length() > 1 ? 4 : 7;
-					g2.drawString(dmgStr, x + offset, bossY + 25);
+					g2.drawString(dmgStr, BOSS_X + 20, y + 13);
 				}
 
 				// If prayer was missed, highlight with thick red borders
 				if (!ba.isCorrectPrayer())
 				{
 					g2.setColor(Color.RED);
-					g2.drawRect(x + 1, bossY + 1, TICK_WIDTH - 2, ROW_HEIGHT - 2);
-					g2.drawRect(x + 2, bossY + 2, TICK_WIDTH - 4, ROW_HEIGHT - 4);
+					g2.drawRect(BOSS_X, y + 1, BOSS_WIDTH, TICK_HEIGHT - 2);
+					g2.drawRect(BOSS_X + 1, y + 2, BOSS_WIDTH - 2, TICK_HEIGHT - 4);
 					
 					// Draw a small red indicator at the top of the box
 					g2.setColor(Color.RED);
-					g2.fillRect(x + 2, bossY + 2, TICK_WIDTH - 4, 3);
+					g2.fillRect(BOSS_X + 1, y + 2, BOSS_WIDTH - 2, 2);
 				}
 			}
 			else
 			{
 				g2.setColor(ColorScheme.DARK_GRAY_COLOR);
-				g2.fillRect(x + 1, bossY + 1, TICK_WIDTH - 2, ROW_HEIGHT - 2);
+				g2.fillRect(BOSS_X, y + 1, BOSS_WIDTH, TICK_HEIGHT - 2);
 			}
 		}
 	}
@@ -239,7 +265,7 @@ public class CombatTimelineView extends JPanel
 		int x = event.getX();
 		int y = event.getY();
 
-		int tick = (x - LEFT_PADDING) / TICK_WIDTH;
+		int tick = (y - HEADER_HEIGHT) / TICK_HEIGHT;
 		if (tick < 0 || tick >= session.getDurationTicks())
 		{
 			return null;
@@ -258,7 +284,12 @@ public class CombatTimelineView extends JPanel
 			else
 			{
 				sb.append("<span style='color:#00e5ff;'><b>Player Attack:</b> ").append(pa.getWeaponName())
-					.append("</span> (").append(pa.getAttackSpeed()).append("t)<br>");
+					.append("</span> (").append(pa.getAttackSpeed()).append("t)");
+				if (pa.getDamage() != -1)
+				{
+					sb.append(" - Hit: <b style='color:#ffffff;'>").append(pa.getDamage()).append("</b>");
+				}
+				sb.append("<br>");
 			}
 		}
 

@@ -40,7 +40,7 @@ public class BossPerformanceOverlay extends OverlayPanel
 		}
 
 		int currentTick = client.getTickCount();
-		double uptime = session.getUptimePercentActive(currentTick);
+		double uptime = session.getUptimePercentActive(currentTick, plugin.getNextAvailableAttackTick());
 		double prayerAcc = session.getPrayerAccuracy();
 		String time = session.getFormattedDurationActive(currentTick);
 

@@ -124,6 +124,21 @@ public class BossPerformancePlugin extends Plugin
 
 		clientToolbar.addNavigation(navButton);
 		overlayManager.add(overlay);
+
+		// Scan for already spawned bosses
+		clientThread.invoke(() -> {
+			if (client.getGameState() == GameState.LOGGED_IN)
+			{
+				for (NPC npc : client.getNpcs())
+				{
+					if (isBoss(npc))
+					{
+						activeBossNpcs.add(npc);
+					}
+				}
+			}
+		});
+
 		log.debug("PvM Tracker started!");
 	}
 
@@ -321,6 +336,34 @@ public class BossPerformancePlugin extends Plugin
 			return;
 		}
 
+		// Check if damage is dealt to the boss (player hit the boss)
+		if (event.getActor() == trackedBossNpc)
+		{
+			int damage = event.getHitsplat().getAmount();
+			List<CombatEvent> events = currentSession.getEvents();
+			for (int i = events.size() - 1; i >= 0; i--)
+			{
+				CombatEvent e = events.get(i);
+				if (e instanceof CombatEvent.PlayerAttack)
+				{
+					CombatEvent.PlayerAttack pa = (CombatEvent.PlayerAttack) e;
+					if (!pa.isLostTick())
+					{
+						if (pa.getDamage() == -1)
+						{
+							pa.setDamage(damage);
+						}
+						else
+						{
+							pa.setDamage(pa.getDamage() + damage);
+						}
+						break;
+					}
+				}
+			}
+			return;
+		}
+
 		if (event.getActor() != client.getLocalPlayer())
 		{
 			return;
@@ -331,11 +374,11 @@ public class BossPerformancePlugin extends Plugin
 		int currentTick = client.getTickCount();
 		int relativeTick = currentTick - currentSession.getStartTick();
 
-		// Match with pending boss attacks landing on this tick
+		// Match with pending boss attacks landing around this tick (allowing 1 tick tolerance)
 		PendingBossAttack matched = null;
 		for (PendingBossAttack pending : pendingBossAttacks)
 		{
-			if (pending.tickLanded == currentTick)
+			if (Math.abs(pending.tickLanded - currentTick) <= 1)
 			{
 				matched = pending;
 				break;
@@ -762,6 +805,11 @@ public class BossPerformancePlugin extends Plugin
 	public CombatSession getCurrentSession()
 	{
 		return currentSession;
+	}
+
+	public int getNextAvailableAttackTick()
+	{
+		return nextAvailableAttackTick;
 	}
 
 	@Provides

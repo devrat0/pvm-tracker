@@ -16,6 +16,9 @@ public abstract class CombatEvent
 		private final boolean isLostTick;
 		private final int attackSpeed;
 
+		@lombok.Setter
+		private int damage = -1;
+
 		public PlayerAttack(int gameTick, String weaponName, boolean isLostTick, int attackSpeed)
 		{
 			super(gameTick);

@@ -90,14 +90,21 @@ public class CombatSession
 		return (activeTicks / duration) * 100.0;
 	}
 
-	public double getUptimePercentActive(int currentTick)
+	public double getUptimePercentActive(int currentTick, int nextAvailableAttackTick)
 	{
 		int duration = getDurationTicksActive(currentTick);
 		if (duration <= 0)
 		{
 			return 100.0;
 		}
-		double activeTicks = Math.max(0, duration - totalLostTicks);
+		
+		int accumulatingLost = 0;
+		if (nextAvailableAttackTick != -1 && currentTick > nextAvailableAttackTick)
+		{
+			accumulatingLost = currentTick - nextAvailableAttackTick;
+		}
+		
+		double activeTicks = Math.max(0, duration - (totalLostTicks + accumulatingLost));
 		return (activeTicks / duration) * 100.0;
 	}
 

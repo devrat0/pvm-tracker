@@ -85,7 +85,7 @@ public class BossPerformancePanel extends PluginPanel
 		// Initialize Detail Panel
 		detailPanel.setLayout(new BoxLayout(detailPanel, BoxLayout.Y_AXIS));
 		detailPanel.setBackground(ColorScheme.DARK_GRAY_COLOR);
-		detailPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
+		detailPanel.setBorder(new EmptyBorder(8, 8, 8, 8));
 
 		// Back Button
 		JButton backButton = new JButton("◀ Back to History");
@@ -95,21 +95,27 @@ public class BossPerformancePanel extends PluginPanel
 		backButton.setForeground(ColorScheme.LIGHT_GRAY_COLOR);
 		backButton.setBorder(BorderFactory.createCompoundBorder(
 			BorderFactory.createLineBorder(ColorScheme.DARKER_GRAY_COLOR.brighter()),
-			BorderFactory.createEmptyBorder(5, 10, 5, 10)
+			BorderFactory.createEmptyBorder(4, 8, 4, 8)
 		));
 		backButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
 		backButton.addActionListener(e -> cardLayout.show(container, LIST_CARD));
+		backButton.setAlignmentX(Component.LEFT_ALIGNMENT);
+		backButton.setMaximumSize(new Dimension(Integer.MAX_VALUE, 22));
 		
 		// Detail Stats
-		JPanel statsPanel = new JPanel(new GridLayout(5, 2, 5, 4));
+		JPanel statsPanel = new JPanel(new GridLayout(5, 2, 5, 3));
 		statsPanel.setBackground(ColorScheme.DARKER_GRAY_COLOR);
 		statsPanel.setBorder(BorderFactory.createCompoundBorder(
 			BorderFactory.createLineBorder(ColorScheme.DARKER_GRAY_COLOR.brighter()),
 			BorderFactory.createEmptyBorder(6, 8, 6, 8)
 		));
+		statsPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+		statsPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 75));
 
-		detailTitle.setFont(new Font("SansSerif", Font.BOLD, 14));
+		detailTitle.setFont(new Font("SansSerif", Font.BOLD, 13));
 		detailTitle.setForeground(Color.WHITE);
+		detailTitle.setAlignmentX(Component.LEFT_ALIGNMENT);
+		detailTitle.setMaximumSize(new Dimension(Integer.MAX_VALUE, 18));
 
 		addStatRow(statsPanel, "Duration:", detailDuration);
 		addStatRow(statsPanel, "Attack Uptime:", detailUptime);
@@ -117,13 +123,14 @@ public class BossPerformancePanel extends PluginPanel
 		addStatRow(statsPanel, "Missed Prayers:", detailMissedPrayers);
 		addStatRow(statsPanel, "Avoidable Dmg:", detailAvoidableDamage);
 
-		// Timeline ScrollPane
+		// Timeline ScrollPane (vertical scrolling)
 		timelineScrollPane = new JScrollPane(timelineView);
-		timelineScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
-		timelineScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
+		timelineScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+		timelineScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
 		timelineScrollPane.setBorder(BorderFactory.createLineBorder(ColorScheme.DARKER_GRAY_COLOR.brighter()));
-		timelineScrollPane.getHorizontalScrollBar().setUnitIncrement(16);
-		timelineScrollPane.setPreferredSize(new Dimension(210, 115));
+		timelineScrollPane.getVerticalScrollBar().setUnitIncrement(16);
+		timelineScrollPane.setAlignmentX(Component.LEFT_ALIGNMENT);
+		timelineScrollPane.setPreferredSize(new Dimension(210, 240));
 
 		detailPanel.add(backButton);
 		detailPanel.add(Box.createRigidArea(new Dimension(0, 6)));
@@ -133,10 +140,13 @@ public class BossPerformancePanel extends PluginPanel
 		detailPanel.add(Box.createRigidArea(new Dimension(0, 8)));
 		
 		JLabel timelineLabel = new JLabel("Combat Timeline (Tick-by-Tick)");
-		timelineLabel.setFont(new Font("SansSerif", Font.BOLD, 12));
+		timelineLabel.setFont(new Font("SansSerif", Font.BOLD, 11));
 		timelineLabel.setForeground(Color.WHITE);
+		timelineLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+		timelineLabel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 16));
+		
 		detailPanel.add(timelineLabel);
-		detailPanel.add(Box.createRigidArea(new Dimension(0, 6)));
+		detailPanel.add(Box.createRigidArea(new Dimension(0, 4)));
 		detailPanel.add(timelineScrollPane);
 		detailPanel.add(Box.createVerticalGlue());
 
@@ -184,8 +194,9 @@ public class BossPerformancePanel extends PluginPanel
 			for (CombatSession session : sessions)
 			{
 				listPanel.add(createSessionRow(session));
-				listPanel.add(Box.createRigidArea(new Dimension(0, 8)));
+				listPanel.add(Box.createRigidArea(new Dimension(0, 4)));
 			}
+			listPanel.add(Box.createVerticalGlue());
 		}
 
 		listPanel.revalidate();
@@ -198,9 +209,11 @@ public class BossPerformancePanel extends PluginPanel
 		row.setBackground(ColorScheme.DARKER_GRAY_COLOR);
 		row.setBorder(BorderFactory.createCompoundBorder(
 			BorderFactory.createLineBorder(ColorScheme.DARKER_GRAY_COLOR.brighter()),
-			BorderFactory.createEmptyBorder(8, 10, 8, 10)
+			BorderFactory.createEmptyBorder(4, 6, 4, 6)
 		));
 		row.setCursor(new Cursor(Cursor.HAND_CURSOR));
+		row.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
+		row.setAlignmentX(Component.LEFT_ALIGNMENT);
 
 		JPanel leftPanel = new JPanel();
 		leftPanel.setLayout(new BoxLayout(leftPanel, BoxLayout.Y_AXIS));
