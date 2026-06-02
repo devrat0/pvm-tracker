@@ -9,7 +9,10 @@ import java.awt.RenderingHints;
 import java.awt.event.MouseEvent;
 import javax.swing.JPanel;
 import javax.swing.ToolTipManager;
+import java.awt.image.BufferedImage;
 import net.runelite.client.ui.ColorScheme;
+import net.runelite.client.game.SpriteManager;
+import net.runelite.api.SpriteID;
 
 public class CombatTimelineView extends JPanel
 {
@@ -27,6 +30,12 @@ public class CombatTimelineView extends JPanel
 	private CombatSession session;
 	private CombatEvent.PlayerAttack[] playerEvents;
 	private CombatEvent.BossAttack[] bossEvents;
+	private SpriteManager spriteManager;
+
+	public void setSpriteManager(SpriteManager spriteManager)
+	{
+		this.spriteManager = spriteManager;
+	}
 
 	public CombatTimelineView()
 	{
@@ -180,49 +189,78 @@ public class CombatTimelineView extends JPanel
 				// Draw Protect Prayer Icon based on style (Left side of the box)
 				int iconX = BOSS_X + 4;
 				int iconY = y + 2;
-				switch (ba.getAttackStyle())
+				BufferedImage sprite = null;
+				if (spriteManager != null)
 				{
-					case MAGIC:
-						// Magic Overhead: blue circle background, yellow wizard hat
-						g2.setColor(new Color(25, 118, 210)); // Blue background
-						g2.fillOval(iconX, iconY + 2, 10, 10);
-						
-						g2.setColor(new Color(255, 215, 0)); // Gold hat
-						int[] hatX = { iconX + 2, iconX + 5, iconX + 8 };
-						int[] hatY = { iconY + 9, iconY + 4, iconY + 9 };
-						g2.fillPolygon(hatX, hatY, 3);
-						g2.fillRect(iconX + 1, iconY + 9, 9, 1); // hat brim
-						break;
-						
-					case RANGE:
-						// Range Overhead: green circle background, arrow pointing down
-						g2.setColor(new Color(56, 142, 60)); // Green background
-						g2.fillOval(iconX, iconY + 2, 10, 10);
-						
-						g2.setColor(new Color(0, 230, 118)); // Bright Green arrow
-						g2.fillRect(iconX + 4, iconY + 4, 2, 4); // shaft
-						int[] arrX = { iconX + 2, iconX + 5, iconX + 8 };
-						int[] arrY = { iconY + 7, iconY + 10, iconY + 7 };
-						g2.fillPolygon(arrX, arrY, 3); // arrow head
-						break;
-						
-					case MELEE:
-						// Melee Overhead: red/orange circle background, sword pointing down
-						g2.setColor(new Color(216, 67, 21)); // Red/Orange background
-						g2.fillOval(iconX, iconY + 2, 10, 10);
-						
-						g2.setColor(new Color(255, 82, 82)); // Bright Red sword
-						g2.fillRect(iconX + 4, iconY + 3, 2, 6); // blade
-						g2.fillRect(iconX + 2, iconY + 8, 6, 1); // guard
-						g2.setColor(Color.WHITE);
-						g2.fillRect(iconX + 4, iconY + 9, 2, 1); // hilt
-						break;
-						
-					default:
-						// Typeless: small white dot
-						g2.setColor(Color.WHITE);
-						g2.fillOval(iconX + 3, iconY + 4, 3, 3);
-						break;
+					int spriteId = -1;
+					switch (ba.getAttackStyle())
+					{
+						case MAGIC:
+							spriteId = 127; // Protect from Magic overhead
+							break;
+						case RANGE:
+							spriteId = 128; // Protect from Ranged overhead
+							break;
+						case MELEE:
+							spriteId = 129; // Protect from Melee overhead
+							break;
+					}
+					if (spriteId != -1)
+					{
+						sprite = spriteManager.getSprite(spriteId, 0);
+					}
+				}
+
+				if (sprite != null)
+				{
+					g2.drawImage(sprite, iconX - 1, iconY + 1, 12, 12, null);
+				}
+				else
+				{
+					switch (ba.getAttackStyle())
+					{
+						case MAGIC:
+							// Magic Overhead: blue circle background, yellow wizard hat
+							g2.setColor(new Color(25, 118, 210)); // Blue background
+							g2.fillOval(iconX, iconY + 2, 10, 10);
+							
+							g2.setColor(new Color(255, 215, 0)); // Gold hat
+							int[] hatX = { iconX + 2, iconX + 5, iconX + 8 };
+							int[] hatY = { iconY + 9, iconY + 4, iconY + 9 };
+							g2.fillPolygon(hatX, hatY, 3);
+							g2.fillRect(iconX + 1, iconY + 9, 9, 1); // hat brim
+							break;
+							
+						case RANGE:
+							// Range Overhead: green circle background, arrow pointing down
+							g2.setColor(new Color(56, 142, 60)); // Green background
+							g2.fillOval(iconX, iconY + 2, 10, 10);
+							
+							g2.setColor(new Color(0, 230, 118)); // Bright Green arrow
+							g2.fillRect(iconX + 4, iconY + 4, 2, 4); // shaft
+							int[] arrX = { iconX + 2, iconX + 5, iconX + 8 };
+							int[] arrY = { iconY + 7, iconY + 10, iconY + 7 };
+							g2.fillPolygon(arrX, arrY, 3); // arrow head
+							break;
+							
+						case MELEE:
+							// Melee Overhead: red/orange circle background, sword pointing down
+							g2.setColor(new Color(216, 67, 21)); // Red/Orange background
+							g2.fillOval(iconX, iconY + 2, 10, 10);
+							
+							g2.setColor(new Color(255, 82, 82)); // Bright Red sword
+							g2.fillRect(iconX + 4, iconY + 3, 2, 6); // blade
+							g2.fillRect(iconX + 2, iconY + 8, 6, 1); // guard
+							g2.setColor(Color.WHITE);
+							g2.fillRect(iconX + 4, iconY + 9, 2, 1); // hilt
+							break;
+							
+						default:
+							// Typeless: small white dot
+							g2.setColor(Color.WHITE);
+							g2.fillOval(iconX + 3, iconY + 4, 3, 3);
+							break;
+					}
 				}
 
 				// Draw damage text (Right side of the box)

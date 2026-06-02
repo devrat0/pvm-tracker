@@ -26,6 +26,7 @@ import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 import net.runelite.client.ui.ColorScheme;
 import net.runelite.client.ui.PluginPanel;
+import net.runelite.client.game.SpriteManager;
 
 public class BossPerformancePanel extends PluginPanel
 {
@@ -55,9 +56,11 @@ public class BossPerformancePanel extends PluginPanel
 	private BossPerformancePlugin plugin;
 
 	@Inject
-	public BossPerformancePanel()
+	public BossPerformancePanel(SpriteManager spriteManager)
 	{
 		super(false); // Do not put scrollbar around the root plugin panel, we handle scrollable areas ourselves.
+
+		timelineView.setSpriteManager(spriteManager);
 
 		setLayout(new BorderLayout());
 		setBackground(ColorScheme.DARK_GRAY_COLOR);

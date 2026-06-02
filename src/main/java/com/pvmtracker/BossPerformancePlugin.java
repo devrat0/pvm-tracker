@@ -398,14 +398,15 @@ public class BossPerformancePlugin extends Plugin
 		}
 		else
 		{
-			// Fallback unmatched hitsplat
+			// Fallback unmatched hitsplat (e.g. environmental hazard or minion hit)
 			HeadIcon activePrayer = client.getLocalPlayer().getOverheadIcon();
+			boolean isAvoidable = damage > 0; // Unmatched damage is considered avoidable
 			currentSession.addEvent(new CombatEvent.BossAttack(
 				relativeTick,
 				CombatEvent.BossAttack.AttackStyle.TYPELESS,
 				damage,
 				getPrayerName(activePrayer),
-				true
+				!isAvoidable
 			));
 		}
 	}

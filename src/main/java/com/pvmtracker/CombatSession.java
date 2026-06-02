@@ -58,7 +58,10 @@ public class CombatSession
 			CombatEvent.BossAttack bossAttack = (CombatEvent.BossAttack) event;
 			if (!bossAttack.isCorrectPrayer())
 			{
-				missedPrayers++;
+				if (bossAttack.getAttackStyle() != CombatEvent.BossAttack.AttackStyle.TYPELESS)
+				{
+					missedPrayers++;
+				}
 				if (bossAttack.getDamage() > 0)
 				{
 					avoidableDamage += bossAttack.getDamage();
