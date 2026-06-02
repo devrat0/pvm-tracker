@@ -25,6 +25,7 @@ import net.runelite.api.Projectile;
 import net.runelite.api.events.ActorDeath;
 import net.runelite.api.events.AnimationChanged;
 import net.runelite.api.events.GameStateChanged;
+import net.runelite.api.events.GameTick;
 import net.runelite.api.events.HitsplatApplied;
 import net.runelite.api.events.NpcDespawned;
 import net.runelite.api.events.NpcSpawned;
@@ -357,7 +358,8 @@ public class BossPerformancePlugin extends Plugin
 		}
 	}
 
-	public void onGameTick()
+	@Subscribe
+	public void onGameTick(GameTick event)
 	{
 		int currentTick = client.getTickCount();
 
